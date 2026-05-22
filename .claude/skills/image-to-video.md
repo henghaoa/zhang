@@ -11,13 +11,13 @@
 
 ## 前置条件
 
-在火山方舟控制台（https://console.volcengine.com/ark）获取 API Key：
+设置 API Key 环境变量（格式：`apikey-YYYYMMDDHHMMSS-xxxxx`）：
 
 ```bash
-export ARK_API_KEY="your_ark_api_key"
+export ARK_API_KEY="apikey-xxxxxxxxxxxxxxxx-xxxxx"
 ```
 
-**模型接入点**（已固定，无需修改）：
+**模型接入点**（即梦视频，已固定在代码中，无需修改）：
 
 ```
 ark-7a3fbb58-5a00-4713-b12c-1beab82c5339-ef75d
