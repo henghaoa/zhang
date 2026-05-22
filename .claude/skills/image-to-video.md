@@ -11,16 +11,16 @@
 
 ## 前置条件
 
-设置 API Key 环境变量（格式：`apikey-YYYYMMDDHHMMSS-xxxxx`）：
+设置 API Key 环境变量：
 
 ```bash
-export ARK_API_KEY="apikey-xxxxxxxxxxxxxxxx-xxxxx"
+export ARK_API_KEY="ark-7a3fbb58-5a00-4713-b12c-1beab82c5339-ef75d"
 ```
 
 **模型接入点**（即梦视频，已固定在代码中，无需修改）：
 
 ```
-ark-7a3fbb58-5a00-4713-b12c-1beab82c5339-ef75d
+apikey-20260522211746-4n8gb
 ```
 
 **安装依赖**（仅需一次）：
@@ -56,7 +56,7 @@ import os, sys, time, base64, pathlib, urllib.request
 from volcenginesdkarkruntime import Ark
 
 ARK_API_KEY = os.environ["ARK_API_KEY"]
-MODEL_EP    = "ark-7a3fbb58-5a00-4713-b12c-1beab82c5339-ef75d"
+MODEL_EP    = "apikey-20260522211746-4n8gb"
 
 client = Ark(api_key=ARK_API_KEY)
 
