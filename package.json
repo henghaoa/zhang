@@ -1,0 +1,13 @@
+{
+  "name": "promo-video-studio",
+  "version": "1.0.0",
+  "description": "AI promotional video generation system using Jimeng API",
+  "main": "jimeng-server.js",
+  "scripts": {
+    "start": "node jimeng-server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}

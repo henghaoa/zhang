@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Promo Video Studio</title>
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a24;
+    --border: #2e2e42;
+    --accent: #7c5cfc;
+    --accent2: #e040fb;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --success: #4caf80;
+    --danger: #f06292;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  header {
+    background: linear-gradient(135deg, var(--surface) 0%, #12121c 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header h1 { font-size: 1.4rem; font-weight: 700; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  header p { font-size: 0.8rem; color: var(--muted); }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .panel h2 { font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 16px; }
+
+  label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 5px; margin-top: 14px; }
+  label:first-of-type { margin-top: 0; }
+
+  input[type=text], input[type=password], select, textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 9px 12px;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--bg); }
+
+  .toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+  .toggle-row label { margin: 0; }
+  input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .upload-area:hover { border-color: var(--accent); background: rgba(124,92,252,.05); }
+  .upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-area .icon { font-size: 2rem; margin-bottom: 8px; }
+  .upload-area p { font-size: 0.83rem; color: var(--muted); }
+  .upload-area .file-count { color: var(--accent); font-weight: 600; font-size: 0.9rem; margin-top: 6px; }
+
+  .previews { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .previews img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 2px solid var(--border); }
+
+  .style-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+  .style-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 6px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all .2s;
+    color: var(--text);
+    user-select: none;
+  }
+  .style-btn:hover { border-color: var(--accent); }
+  .style-btn.active { border-color: var(--accent); background: rgba(124,92,252,.18); color: #c8b8ff; }
+
+  .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 8px; }
+  .action-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    cursor: pointer;
+    font-size: 0.76rem;
+    transition: all .2s;
+    color: var(--text);
+    user-select: none;
+    text-align: center;
+  }
+  .action-btn:hover { border-color: var(--accent2); }
+  .action-btn.active { border-color: var(--accent2); background: rgba(224,64,251,.15); color: #f0b8ff; }
+
+  .btn-generate {
+    width: 100%;
+    margin-top: 20px;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s, transform .1s;
+  }
+  .btn-generate:hover { opacity: .88; }
+  .btn-generate:active { transform: scale(.98); }
+  .btn-generate:disabled { opacity: .4; cursor: not-allowed; }
+
+  .results-panel { display: flex; flex-direction: column; gap: 20px; }
+
+  .progress-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+  .progress-bar-wrap { background: var(--border); border-radius: 999px; height: 6px; margin: 10px 0; overflow: hidden; }
+  .progress-bar { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .4s; }
+  .progress-status { font-size: 0.82rem; color: var(--muted); }
+
+  .video-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .video-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .video-card video { width: 100%; display: block; }
+  .video-info { padding: 12px; }
+  .video-info .caption { font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
+  .video-info .hashtags { font-size: 0.78rem; color: var(--accent); margin-bottom: 8px; }
+  .video-info .lang-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+  .lang-tab { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--border); font-size: 0.73rem; cursor: pointer; background: none; color: var(--muted); transition: all .15s; }
+  .lang-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-dl { display: block; width: 100%; padding: 8px; background: var(--border); border: none; border-radius: 8px; color: var(--text); font-size: 0.82rem; cursor: pointer; transition: background .2s; }
+  .btn-dl:hover { background: var(--accent); }
+
+  .copy-area { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 0.8rem; color: var(--muted); margin-top: 8px; word-break: break-all; }
+
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .dot-pending { background: var(--muted); }
+  .dot-running { background: #ffd740; animation: pulse 1s infinite; }
+  .dot-done { background: var(--success); }
+  .dot-error { background: var(--danger); }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+
+  .empty-state { text-align: center; color: var(--muted); padding: 60px 20px; font-size: 0.9rem; }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+    .video-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🎬 Promo Video Studio</h1>
+    <p>AI推广视频生成 · Powered by Jimeng AI + Claude</p>
+  </div>
+</header>
+
+<div class="container">
+  <!-- LEFT PANEL -->
+  <div>
+    <div class="panel" style="margin-bottom:16px">
+      <h2>🔑 API 密钥</h2>
+      <label>Access Key (AK)</label>
+      <input type="password" id="ak" placeholder="AKLT..." />
+      <label>Secret Key (SK)</label>
+      <input type="password" id="sk" placeholder="..." />
+      <label>Claude API Key</label>
+      <input type="password" id="claudeKey" placeholder="sk-ant-..." />
+      <label>服务器地址</label>
+      <input type="text" id="serverUrl" value="http://localhost:3456" />
+    </div>
+
+    <div class="panel" style="margin-bottom:16px">
+      <h2>🖼️ 上传图片</h2>
+      <div class="upload-area" id="uploadArea">
+        <input type="file" id="fileInput" accept="image/*" multiple />
+        <div class="icon">📁</div>
+        <p>点击或拖拽上传图片（可多选）</p>
+        <div class="file-count" id="fileCount"></div>
+      </div>
+      <div class="previews" id="previews"></div>
+    </div>
+
+    <div class="panel" style="margin-bottom:16px">
+      <h2>🏪 商家类型</h2>
+      <select id="bizType">
+        <option value="restaurant">🍽️ 餐厅 Restaurant</option>
+        <option value="cafe">☕ 咖啡馆 Café</option>
+        <option value="clothing">👗 服装店 Clothing Store</option>
+        <option value="bar">🍸 酒吧 Bar</option>
+        <option value="bakery">🥐 面包店 Bakery</option>
+      </select>
+
+      <h2 style="margin-top:16px">🎨 视频风格</h2>
+      <div class="style-grid" id="styleGrid"></div>
+
+      <h2 style="margin-top:16px">💃 模特动作</h2>
+      <div class="action-grid" id="actionGrid"></div>
+    </div>
+
+    <div class="panel" style="margin-bottom:16px">
+      <h2>⚙️ 生成设置</h2>
+      <label>画面比例</label>
+      <select id="aspect">
+        <option value="16:9">16:9 横屏</option>
+        <option value="9:16">9:16 竖屏</option>
+        <option value="1:1">1:1 正方形</option>
+      </select>
+      <label>输出语言</label>
+      <select id="lang">
+        <option value="zh">中文</option>
+        <option value="en">English</option>
+        <option value="sk">Slovenčina</option>
+        <option value="all">三语全部</option>
+      </select>
+      <div class="toggle-row">
+        <input type="checkbox" id="proMode" />
+        <label for="proMode">Pro 模式（10秒，需购买积分）</label>
+      </div>
+    </div>
+
+    <button class="btn-generate" id="generateBtn" onclick="generate()">✨ 生成推广视频</button>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="results-panel">
+    <div class="panel" id="progressPanel" style="display:none">
+      <h2>📊 生成进度</h2>
+      <div id="progressItems"></div>
+    </div>
+
+    <div id="videoGrid" class="video-grid"></div>
+
+    <div class="empty-state" id="emptyState">
+      <div class="icon">🎞️</div>
+      <p>上传图片并配置参数后点击生成</p>
+      <p style="margin-top:8px;font-size:0.75rem">支持批量处理多张图片</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const STYLES = [
+  { id: "elegant",    zh: "精致",     emoji: "✨" },
+  { id: "vibrant",    zh: "活力",     emoji: "⚡" },
+  { id: "cozy",       zh: "温馨",     emoji: "🕯️" },
+  { id: "minimal",    zh: "简洁",     emoji: "⬜" },
+  { id: "fashion",    zh: "时尚大片", emoji: "👗" },
+  { id: "natural",    zh: "自然真实", emoji: "🌿" },
+  { id: "anime",      zh: "日系动漫", emoji: "🌸" },
+  { id: "cartoon",    zh: "3D卡通",   emoji: "🎠" },
+  { id: "cyberpunk",  zh: "赛博朋克", emoji: "🌃" },
+  { id: "watercolor", zh: "水彩插画", emoji: "🎨" },
+  { id: "battle_anime", zh: "战斗动漫", emoji: "⚔️" },
+];
+
+const STYLE_DESC = {
+  elegant: "high-end, cinematic, rich amber tones, luxury feel",
+  vibrant: "bold colors, dynamic energy, Gen-Z aesthetic",
+  cozy: "warm soft light, inviting, lifestyle warmth",
+  minimal: "clean white space, editorial, Scandinavian calm",
+  fashion: "editorial magazine style, dramatic contrast, runway mood",
+  natural: "authentic, lifestyle photography, natural daylight",
+  anime: "anime style, Studio Ghibli inspired, soft pastel colors, hand-drawn aesthetic",
+  cartoon: "Pixar-style 3D animation, bright vivid colors, smooth rendering",
+  cyberpunk: "neon lights, dark futuristic city, rain-soaked streets, electric glow",
+  watercolor: "soft watercolor painting style, gentle brushstrokes, pastel tones",
+  battle_anime: "intense action anime, speed lines, energy blasts, Demon Slayer aesthetic",
+};
+
+const ACTIONS = [
+  { id: "turn360",     zh: "转身展示",   en: "model slowly turns 360 degrees to showcase the outfit from all angles" },
+  { id: "runway",      zh: "走秀步伐",   en: "model walks gracefully toward camera on runway, confident catwalk stride" },
+  { id: "breeze",      zh: "微风飘动",   en: "model poses elegantly, slight movement of fabric in gentle breeze" },
+  { id: "sleeves",     zh: "展示袖型",   en: "model raises arms slowly to showcase sleeves and upper garment details" },
+  { id: "spin_skirt",  zh: "旋转裙摆",   en: "model does a graceful spin, skirt/fabric flows beautifully" },
+  { id: "sit_stand",   zh: "坐立展示",   en: "model sits down gracefully then stands up, showcasing outfit versatility" },
+  { id: "glance_back", zh: "回眸一顾",   en: "model looks over shoulder toward camera, subtle hair and fabric movement" },
+  { id: "walk_turn",   zh: "走动回转",   en: "model walks away then turns back naturally, full outfit reveal" },
+  { id: "put_on",      zh: "穿衣动作",   en: "model gracefully puts on the garment, sliding arms through sleeves, adjusting collar" },
+  { id: "unbox",       zh: "开箱展示",   en: "model unboxes and reveals the clothing item, holds it up to display" },
+];
+
+const CAMERAS = {
+  restaurant: [
+    "Slow macro push-in on hero dish, steam rising, bokeh background",
+    "Low-angle dolly through warm dining room, candles flickering softly",
+    "Overhead crane shot descending to plated dish, golden hour light",
+  ],
+  cafe: [
+    "Close-up pour shot of latte art forming, slow motion steam",
+    "Rack focus from coffee beans to finished cup, warm window light",
+    "Slow pan across cozy seating area, soft morning light streaming in",
+  ],
+  clothing: [
+    "Elegant vertical pan from shoes upward along full outfit, studio lighting",
+    "Slow 180-degree orbit around mannequin/model, fabric texture detail",
+    "Macro push-in on fabric texture and stitching details, bokeh background",
+  ],
+  bar: [
+    "Low angle tilt-up of cocktail being poured, neon reflections on glass",
+    "Slow dolly through atmospheric bar, bokeh fairy lights in background",
+  ],
+  bakery: [
+    "Extreme close-up of golden pastry crust, steam escaping, warm tones",
+    "Overhead shot of bread being sliced, crumbs scattering in slow motion",
+  ],
+};
+
+let selectedStyle = "elegant";
+let selectedActions = new Set();
+let uploadedFiles = [];
+
+// Build style grid
+const styleGrid = document.getElementById("styleGrid");
+STYLES.forEach(s => {
+  const btn = document.createElement("div");
+  btn.className = "style-btn" + (s.id === selectedStyle ? " active" : "");
+  btn.innerHTML = `${s.emoji}<br>${s.zh}`;
+  btn.onclick = () => {
+    selectedStyle = s.id;
+    styleGrid.querySelectorAll(".style-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+  };
+  styleGrid.appendChild(btn);
+});
+
+// Build action grid
+const actionGrid = document.getElementById("actionGrid");
+ACTIONS.forEach(a => {
+  const btn = document.createElement("div");
+  btn.className = "action-btn";
+  btn.textContent = a.zh;
+  btn.onclick = () => {
+    btn.classList.toggle("active");
+    if (selectedActions.has(a.id)) selectedActions.delete(a.id);
+    else selectedActions.add(a.id);
+  };
+  actionGrid.appendChild(btn);
+});
+
+// File upload
+const fileInput = document.getElementById("fileInput");
+fileInput.onchange = () => {
+  uploadedFiles = Array.from(fileInput.files);
+  document.getElementById("fileCount").textContent = `已选 ${uploadedFiles.length} 张图片`;
+  const previews = document.getElementById("previews");
+  previews.innerHTML = "";
+  uploadedFiles.forEach(f => {
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(f);
+    previews.appendChild(img);
+  });
+};
+
+function toBase64(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = () => res(reader.result.split(",")[1]);
+    reader.onerror = rej;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function callClaude(claudeKey, prompt) {
+  const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": claudeKey,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 512,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content[0].text;
+}
+
+function parseClaude(text) {
+  const videoPrompt = (text.match(/VIDEO_PROMPT:\s*(.+?)(?:\n|CAPTION:|$)/s)?.[1] || "").trim();
+  const caption = (text.match(/CAPTION:\s*(.+?)(?:\n|HASHTAGS:|$)/s)?.[1] || "").trim();
+  const hashtags = (text.match(/HASHTAGS:\s*(.+)/s)?.[1] || "").trim();
+  return { videoPrompt, caption, hashtags };
+}
+
+function langLabel(lang) {
+  return { zh: "中文", en: "English", sk: "Slovenčina", all: "三语" }[lang] || lang;
+}
+
+async function generate() {
+  const ak = document.getElementById("ak").value.trim();
+  const sk = document.getElementById("sk").value.trim();
+  const claudeKey = document.getElementById("claudeKey").value.trim();
+  const serverUrl = document.getElementById("serverUrl").value.trim();
+  const bizType = document.getElementById("bizType").value;
+  const aspect = document.getElementById("aspect").value;
+  const lang = document.getElementById("lang").value;
+  const pro = document.getElementById("proMode").checked;
+
+  if (!ak || !sk) return alert("请填写 AK / SK");
+  if (!claudeKey) return alert("请填写 Claude API Key");
+  if (uploadedFiles.length === 0) return alert("请上传至少一张图片");
+
+  const btn = document.getElementById("generateBtn");
+  btn.disabled = true;
+  btn.textContent = "⏳ 生成中...";
+
+  document.getElementById("emptyState").style.display = "none";
+  document.getElementById("progressPanel").style.display = "block";
+  document.getElementById("videoGrid").innerHTML = "";
+
+  const progressItems = document.getElementById("progressItems");
+  progressItems.innerHTML = "";
+
+  const cameras = CAMERAS[bizType] || CAMERAS.restaurant;
+  const styleDesc = STYLE_DESC[selectedStyle] || "";
+  const styleLabel = STYLES.find(s => s.id === selectedStyle)?.zh || selectedStyle;
+  const actionEnArr = Array.from(selectedActions).map(id => ACTIONS.find(a => a.id === id)?.en || "");
+  const actionStr = actionEnArr.join(", ");
+
+  const langs = lang === "all" ? ["zh", "en", "sk"] : [lang];
+  const langNames = { zh: "Chinese", en: "English", sk: "Slovak (Slovenčina)" };
+
+  const tasks = uploadedFiles.map((file, i) => ({
+    file, index: i,
+    status: "pending",
+    taskId: null,
+    result: null,
+    captions: {},
+    videoPrompt: "",
+    hashtags: {},
+  }));
+
+  // Create progress items
+  tasks.forEach((t, i) => {
+    const div = document.createElement("div");
+    div.id = `prog-${i}`;
+    div.className = "progress-card";
+    div.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span class="status-dot dot-pending" id="dot-${i}"></span>
+        <span style="font-size:.85rem">第 ${i + 1} / ${tasks.length} 张</span>
+        <span style="font-size:.78rem;color:var(--muted);margin-left:auto" id="status-text-${i}">等待中</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="bar-${i}" style="width:0%"></div></div>
+      <div class="progress-status" id="prog-detail-${i}"></div>
+    `;
+    progressItems.appendChild(div);
+  });
+
+  function setProgress(i, pct, text, dotClass) {
+    document.getElementById(`bar-${i}`).style.width = pct + "%";
+    document.getElementById(`status-text-${i}`).textContent = text;
+    const dot = document.getElementById(`dot-${i}`);
+    dot.className = `status-dot ${dotClass}`;
+  }
+
+  async function processOne(t) {
+    const i = t.index;
+    try {
+      setProgress(i, 5, "生成提示词...", "dot-running");
+
+      const randomCamera = cameras[Math.floor(Math.random() * cameras.length)];
+
+      // Generate prompts for each language
+      for (const l of langs) {
+        const claudePrompt = `You are creating a professional promotional video prompt for a ${bizType} business.
+
+CAMERA MOVEMENT: ${randomCamera}
+${actionStr ? `MODEL BEHAVIOR: ${actionStr}` : ""}
+Visual style: ${styleLabel} — ${styleDesc}
+${selectedStyle === "battle_anime" ? `
+CRITICAL STYLE - BATTLE ANIME:
+- Anime art style similar to Demon Slayer, Jujutsu Kaisen, or Naruto
+- Dynamic action: speed lines, motion blur, impact frames
+- Energy effects: glowing auras, fire/lightning/wind elemental powers
+- Dramatic camera: extreme angles, dutch tilt, explosive zoom
+- Color: high contrast, saturated, cel-shading look
+- Include: shockwave rings, particle effects, dramatic dust clouds
+` : ""}
+
+Create a Jimeng AI image-to-video prompt in English:
+- Start with the exact camera movement
+- Add specific lighting details
+- Include atmosphere and mood
+- End with 2-3 cinematic quality descriptors
+- Maximum 80 words
+
+Reply in EXACTLY this format:
+VIDEO_PROMPT: [prompt here]
+CAPTION: [caption max 12 words in ${langNames[l]}]
+HASHTAGS: [5 hashtags in ${langNames[l]}]`;
+
+        const raw = await callClaude(claudeKey, claudePrompt);
+        const parsed = parseClaude(raw);
+        t.captions[l] = parsed.caption;
+        t.hashtags[l] = parsed.hashtags;
+        if (!t.videoPrompt) t.videoPrompt = parsed.videoPrompt;
+      }
+
+      setProgress(i, 20, "上传图片...", "dot-running");
+      const b64 = await toBase64(t.file);
+
+      setProgress(i, 30, "提交任务...", "dot-running");
+      const submitResp = await fetch(`${serverUrl}/api/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ak, sk, prompt: t.videoPrompt, imageBase64: b64, pro, aspectRatio: aspect }),
+      });
+      const submitData = await submitResp.json();
+
+      if (submitData.code !== 10000) throw new Error(submitData.message || JSON.stringify(submitData));
+      t.taskId = submitData.data?.task_id;
+
+      // Poll for result
+      let attempts = 0;
+      const maxAttempts = 60;
+      while (attempts < maxAttempts) {
+        await new Promise(r => setTimeout(r, 5000));
+        attempts++;
+        const pct = 30 + Math.min(60, attempts * 1.5);
+        setProgress(i, pct, `轮询结果 (${attempts}/${maxAttempts})...`, "dot-running");
+
+        const resultResp = await fetch(`${serverUrl}/api/result`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ak, sk, taskId: t.taskId }),
+        });
+        const resultData = await resultResp.json();
+
+        if (resultData.code !== 10000) continue;
+        const status = resultData.data?.status;
+        if (status === "done" || status === "succeeded" || resultData.data?.video_url) {
+          t.result = resultData.data;
+          break;
+        }
+        if (status === "failed") throw new Error("任务失败：" + (resultData.data?.message || "unknown"));
+      }
+
+      if (!t.result) throw new Error("超时：未获取到结果");
+
+      setProgress(i, 100, "完成 ✓", "dot-done");
+      renderVideoCard(t);
+    } catch (err) {
+      setProgress(i, 100, "错误: " + err.message, "dot-error");
+      console.error(err);
+    }
+  }
+
+  // Process all tasks (concurrently up to 3)
+  const queue = [...tasks];
+  async function worker() {
+    while (queue.length) {
+      const t = queue.shift();
+      await processOne(t);
+    }
+  }
+  await Promise.all([worker(), worker(), worker()]);
+
+  btn.disabled = false;
+  btn.textContent = "✨ 生成推广视频";
+}
+
+function renderVideoCard(t) {
+  const videoUrl = t.result?.video_url || t.result?.videos?.[0]?.video_url;
+  const grid = document.getElementById("videoGrid");
+
+  const card = document.createElement("div");
+  card.className = "video-card";
+
+  const activeLang = Object.keys(t.captions)[0] || "zh";
+
+  card.innerHTML = `
+    ${videoUrl ? `<video controls loop src="${videoUrl}"></video>` : `<div style="padding:40px;text-align:center;color:var(--muted)">视频URL未获取</div>`}
+    <div class="video-info">
+      <div class="lang-tabs" id="tabs-${t.index}"></div>
+      <div class="caption" id="caption-${t.index}">${t.captions[activeLang] || ""}</div>
+      <div class="hashtags" id="hashtags-${t.index}">${t.hashtags[activeLang] || ""}</div>
+      <div class="copy-area" id="prompt-${t.index}" title="视频提示词">${t.videoPrompt}</div>
+      ${videoUrl ? `<button class="btn-dl" onclick="downloadVideo('${videoUrl}', ${t.index})">⬇️ 下载视频</button>` : ""}
+    </div>
+  `;
+
+  const tabs = card.querySelector(`#tabs-${t.index}`);
+  Object.keys(t.captions).forEach(l => {
+    const tab = document.createElement("button");
+    tab.className = "lang-tab" + (l === activeLang ? " active" : "");
+    tab.textContent = { zh: "中文", en: "EN", sk: "SK" }[l] || l;
+    tab.onclick = () => {
+      tabs.querySelectorAll(".lang-tab").forEach(b => b.classList.remove("active"));
+      tab.classList.add("active");
+      card.querySelector(`#caption-${t.index}`).textContent = t.captions[l] || "";
+      card.querySelector(`#hashtags-${t.index}`).textContent = t.hashtags[l] || "";
+    };
+    tabs.appendChild(tab);
+  });
+
+  grid.appendChild(card);
+}
+
+function downloadVideo(url, idx) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `promo-video-${idx + 1}.mp4`;
+  a.click();
+}
+</script>
+</body>
+</html>
