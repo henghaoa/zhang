@@ -1,0 +1,25 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# sqlite
+*.db
+*.db-wal
+*.db-shm
+
+# misc
+npm-debug.log*
+.DS_Store
